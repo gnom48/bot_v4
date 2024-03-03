@@ -3,7 +3,6 @@ from emoji import emojize
 import datetime
 from aiogram.dispatcher.filters.state import State
 from bot import state_machine
-from ..models.talks import why_bad_str_list
 
 
 # выбор пола
@@ -171,19 +170,6 @@ def get_knowledge_base_deals_markup() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="Эксклюзивный", callback_data="exclusive"),
         InlineKeyboardButton(text="Поисковой", callback_data="serching"),
         InlineKeyboardButton(text="Аукционный метод", callback_data="auction")
-    ]
-    for i in b:
-        kb.add(i)
-    return kb
-
-
-# если результат встречи / сделки / показа - НЕ подписан договор
-def get_types_contracts_markup() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardMarkup(row_width=1)
-    b = [
-        InlineKeyboardButton(text="Эксклюзивный", url=why_bad_str_list["exclusive"]),
-        InlineKeyboardButton(text="Поисковой", url=why_bad_str_list["serching"]),
-        InlineKeyboardButton(text="Аукционный метод", url=why_bad_str_list["auction"])
     ]
     for i in b:
         kb.add(i)

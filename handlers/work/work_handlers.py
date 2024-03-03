@@ -180,3 +180,16 @@ async def is_contract_signed(callback: types.Message, state: FSMContext):
         await bot.send_message(chat_id=callback.from_user.id, text = "Ладно, клиенту необходимо хорошенько подумать, давай запишем тебе напоминание!", reply_markup=types.ReplyKeyboardRemove())
         await bot.send_message(chat_id=callback.from_user.id, text = "Напиши краткое название задачи:")
         await WorkStates.task_name.set()
+
+
+# если результат встречи / сделки / показа - НЕ подписан договор
+def get_types_contracts_markup() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(row_width=1)
+    b = [
+        InlineKeyboardButton(text="Эксклюзивный", url=why_bad_str_list["exclusive"]),
+        InlineKeyboardButton(text="Поисковой", url=why_bad_str_list["serching"]),
+        InlineKeyboardButton(text="Аукционный метод", url=why_bad_str_list["auction"])
+    ]
+    for i in b:
+        kb.add(i)
+    return kb
