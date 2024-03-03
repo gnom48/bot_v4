@@ -31,7 +31,7 @@ async def choose_what_bad(callback: types.CallbackQuery, state: FSMContext):
     elif callback.data == "calls":
         kb = types.InlineKeyboardMarkup(row_width=1)
         vb1 = types.InlineKeyboardButton(text='Смотреть видео', url=why_bad_str_list[callback.data+"_video"])
-        vb2 = types.InlineKeyboardButton(text='Читать матриалы', url=why_bad_str_list[callback.data])
+        vb2 = types.InlineKeyboardButton(text='Читать материал', url=why_bad_str_list[callback.data])
         kb.add(vb1)
         kb.add(vb2)
         await bot.send_message(callback.from_user.id, f"Вот ссылки на теоретическую информацию по твоей теме:", reply_markup=kb)

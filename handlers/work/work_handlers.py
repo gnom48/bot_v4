@@ -172,7 +172,7 @@ async def is_contract_signed(callback: types.Message, state: FSMContext):
 
     elif callback.data == "unsigned":
         await bot.send_message(chat_id=callback.from_user.id, text="Значит в следующий раз точно подпишите!" , reply_markup=types.ReplyKeyboardRemove())
-        await bot.send_message(chat_id=callback.from_user.id, text="А пока советую посмотреть материалы по этой теме, чтобы в следующий раз быть готовым на 100%", reply_markup=get_video_link("https://disk.yandex.ru/i/XbeovgGuvziSPQ"))
+        await bot.send_message(chat_id=callback.from_user.id, text="А пока советую посмотреть материалы по этой теме, чтобы в следующий раз быть готовым на 100%", reply_markup=get_types_contracts_markup())
         schedule_job(callback.from_user.id, bot, "Изучил материал? Все понял, или нужно что-то еще?", WorkStates.is_all_materials_ok, get_is_all_materials_ok_markup(), dt.now() + SHIFT_SHORT_TIMEDELTA, "Изучение теоретических материалов")
 
     elif callback.data == "later":

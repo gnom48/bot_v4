@@ -114,8 +114,9 @@ async def start_cmd(msg: types.Message):
 # служебная команда для отладки
 @dp.message_handler(commands=['debug'], state="*")
 async def start_cmd(msg: types.Message, state: FSMContext):
-    await msg.answer(f"state = {state.__str__}")
-    await msg.answer(f"scheduler_list = \n\n{json.dumps(scheduler_list.__dict__)}")
+    last_messages[msg.from_user.id] = (dt.now(), False)
+    await msg.answer(f"state = {state.__str__()}")
+    await msg.answer(f"scheduler_list = {json.dumps(scheduler_list.__dict__)}")
 
 
 # команда задача
@@ -131,7 +132,7 @@ async def start_cmd(msg: types.Message, state: FSMContext):
 @dp.message_handler(commands=['start'], state="*")
 async def start_cmd(msg: types.Message):
     last_messages[msg.from_user.id] = (dt.now(), True)
-    #scheduler_list[msg.from_user.id] = {}
+    #scheduler_list[msg.from_user.id] = {} # сомнительно но ок
     oldRielter: any
     try:
         oldRielter = Rielter.get_by_id(pk=msg.from_user.id)
@@ -224,13 +225,11 @@ async def enter_no_work_type(msg: types.Message, state: FSMContext):
         schedule_job(msg.from_user.id, bot, generate_main_menu_text(), WorkStates.ready, get_inline_menu_markup(), dt.now() + SHIFT_TIMEDELTA, "Задаток")
         await WorkStates.ready.set()
     elif msg.text == "Отпуск":
-        last_messages[msg.from_user.id] = (dt.now(), False)
         async with state.proxy() as data:
             data["rest_type"] = "отпуск"
         await msg.answer("Отпуск - лучшее время в году! Напиши, сколько дней планируешь отдыхать, а я сообщу руководителю:", reply_markup=types.ReplyKeyboardRemove())
         await WorkStates.enter_days_ill_or_rest.set()
     else:
-        last_messages[msg.from_user.id] = (dt.now(), False)
         async with state.proxy() as data:
             data["rest_type"] = "больничный"
         await msg.answer("Болеть всегда неприятно, но ты поправляйся, а я сообщю руководителю.\nСколько дней тебя не тревожить?", reply_markup=types.ReplyKeyboardRemove())
@@ -240,7 +239,7 @@ async def enter_no_work_type(msg: types.Message, state: FSMContext):
 # сколько дней болеть или отдыхать
 @dp.message_handler(state=WorkStates.enter_days_ill_or_rest)
 async def enter_no_work_type(msg: types.Message, state: FSMContext):
-    last_messages[msg.from_user.id] = (dt.now(), True)
+    last_messages[msg.from_user.id] = (dt.now(), False)
     try:
         days_count = int(msg.text)
         if days_count < 0:
@@ -249,7 +248,7 @@ async def enter_no_work_type(msg: types.Message, state: FSMContext):
         await msg.reply("Ошибка, попробуй ввести еще раз!")
         return
     async with state.proxy() as data:
-        await msg.answer(f"Я все понял. Не буду тревожить тебя дней: {days_count}", reply_markup=types.ReplyKeyboardRemove())
+        await msg.answer(f"Я все понял. Не буду тревожить тебя дней: {days_count}. Можешь написать мне в любое время, когда сможешь продолжить работу", reply_markup=types.ReplyKeyboardRemove())
         await bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"Сотрудник  {Rielter.get_or_none(Rielter.rielter_id == msg.from_user.id).fio} #{msg.from_user.id} хочет взять #{data['rest_type']} на дней: {days_count}.")
         await WorkStates.ready.set()
 
@@ -257,5 +256,5 @@ async def enter_no_work_type(msg: types.Message, state: FSMContext):
 # если поболтать
 @dp.message_handler(state=WorkStates.ready)
 async def talks(msg: types.Message, state: FSMContext):
-    last_messages[msg.from_user.id] = (dt.now(), False)
+    last_messages[msg.from_user.id] = (dt.now(), True)
     await msg.answer("Тебе стоит выбрать какое-нибудь действие, если ты потерялся - обратись к справке /help или своему руководителю!")
