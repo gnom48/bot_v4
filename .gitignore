@@ -1,0 +1,9 @@
+/venv
+/bot/__pycache__
+/handlers/__pycache__
+/keybords/__pycache__
+/models/__pycache__
+/authorization/__pycache__
+/knowledge_base/__pycache__
+/tasks/__pycache__
+/work/__pycache__
