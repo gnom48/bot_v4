@@ -38,6 +38,7 @@ async def send_scheduled_message(chat_id: int, job_id: str, bot: Bot, text: str,
 
 # слушатель игнора - проверяет для пользователя последнее сообщение и ругается
 async def ignore_listener() -> None:
+    return
     for chat_id in last_messages:
         time_point = dt.now()
         if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
@@ -68,7 +69,7 @@ async def ignore_listener() -> None:
 # ежедневные утренние напоминания
 async def morning_notifications(bot: Bot, dp: Dispatcher):
     # сброс счётчиков
-    # last_messages.clear() # а зачем собственно?
+    last_messages.clear()
 
     # др
     for rielter in Rielter.select():
