@@ -21,6 +21,7 @@ async def choose_what_bad(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer("✓")
 
     if callback.data == "analytics" or callback.data == "shows" or callback.data == "commercial":
+        last_messages[callback.from_user.id] = (dt.now(), False)
         kb = types.InlineKeyboardMarkup(row_width=1)
         vb = types.InlineKeyboardButton(text='Смотреть материал', url=why_bad_str_list[callback.data])
         kb.add(vb)
@@ -29,6 +30,7 @@ async def choose_what_bad(callback: types.CallbackQuery, state: FSMContext):
         schedule_job(callback.from_user.id, bot, "Изучил материал? Все понял, или нужно что-то еще?", WorkStates.is_all_materials_ok, get_is_all_materials_ok_markup(), dt.now() + SHIFT_SHORT_TIMEDELTA, "Изучение теоретических материалов")
 
     elif callback.data == "calls":
+        last_messages[callback.from_user.id] = (dt.now(), False)
         kb = types.InlineKeyboardMarkup(row_width=1)
         vb1 = types.InlineKeyboardButton(text='Смотреть видео', url=why_bad_str_list[callback.data+"_video"])
         vb2 = types.InlineKeyboardButton(text='Читать материал', url=why_bad_str_list[callback.data])
@@ -57,7 +59,7 @@ async def choose_what_bad(callback: types.CallbackQuery, state: FSMContext):
 # выбор раздела в базе знаний - раздел с возражениями клиентов
 @dp.callback_query_handler(state=WorkStates.knowledge_base_bad_clients)
 async def choose_what_bad_clients(callback: types.CallbackQuery, state: FSMContext):
-    last_messages[callback.from_user.id] = (dt.now(), True)
+    last_messages[callback.from_user.id] = (dt.now(), False)
     await callback.answer("✓")
 
     if callback.data in ["context", "general", "bad_calls", "anti_bad", "bad_meets"]:
@@ -72,7 +74,7 @@ async def choose_what_bad_clients(callback: types.CallbackQuery, state: FSMConte
 # выбор раздела в базе знаний - раздел с договорами
 @dp.callback_query_handler(state=WorkStates.knowledge_base_base_deals)
 async def choose_what_deals(callback: types.CallbackQuery, state: FSMContext):
-    last_messages[callback.from_user.id] = (dt.now(), True)
+    last_messages[callback.from_user.id] = (dt.now(), False)
     await callback.answer("✓")
 
     if callback.data in ["exclusive", "serching", "auction"]:
@@ -91,6 +93,7 @@ async def choose_what_meets(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer("✓")
 
     if callback.data in ["small-talk", "spin", "3yes"]:
+        last_messages[callback.from_user.id] = (dt.now(), False)
         kb = types.InlineKeyboardMarkup(row_width=1)
         vb = types.InlineKeyboardButton(text='Смотреть материал', url=why_bad_str_list[callback.data])
         kb.add(vb)
@@ -106,7 +109,7 @@ async def choose_what_meets(callback: types.CallbackQuery, state: FSMContext):
 # выбор раздела в базе знаний - подраздел все можно продать
 @dp.callback_query_handler(state=WorkStates.knowledge_base_all_able)
 async def choose_what_all_able_to_sale(callback: types.CallbackQuery, state: FSMContext):
-    last_messages[callback.from_user.id] = (dt.now(), True)
+    last_messages[callback.from_user.id] = (dt.now(), False)
     await callback.answer("✓")
 
     if callback.data in ["price", "homestaging"]:
@@ -176,6 +179,7 @@ async def enter_why_deal_bad(callback: types.CallbackQuery, state: FSMContext):
             await bot.send_message(chat_id=callback.from_user.id, text=f"Всегда полезно самосовершенствование, особенно когда дело касается аналитики рынка или поиска новых объектов!:", 
                                 reply_markup=get_video_link("https://youtu.be/cATV_k5cqBc?si=n_cSPsPr1ZC6_vNs"))
             await WorkStates.ready.set()
+        last_messages[callback.from_user.id] = (dt.now(), False)
         schedule_job(callback.from_user.id, bot, "Изучил материал? Все понял, или нужно что-то еще?", WorkStates.is_all_materials_ok, get_is_all_materials_ok_markup(), dt.now() + SHIFT_SHORT_TIMEDELTA, "Изучение теоретических материалов")
 
     elif callback.data == "Сделку перенесли" or callback.data == "Задаток перенесен":

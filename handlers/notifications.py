@@ -13,6 +13,7 @@ from aiogram.dispatcher import Dispatcher
 
 # для правильной планировки отправки сообщения
 def schedule_job(chat_id: int, bot: Bot, text: str, state: State, keyboard, send_at: dt, title: str) -> None:
+    last_messages[chat_id] = (dt.now(), True)
     job_id = f"{chat_id}_{send_at}_{title}"
     kw = {"chat_id" : chat_id, "job_id" : job_id, "bot" : bot, "text" : text, "state" : state, "keyboard" : keyboard, "title" : title}
     support_scheduler.add_job(func=send_scheduled_message, trigger="date", run_date=send_at, kwargs=kw, id=job_id)
@@ -38,7 +39,6 @@ async def send_scheduled_message(chat_id: int, job_id: str, bot: Bot, text: str,
 
 # слушатель игнора - проверяет для пользователя последнее сообщение и ругается
 async def ignore_listener() -> None:
-    return
     for chat_id in last_messages:
         time_point = dt.now()
         if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
@@ -46,17 +46,21 @@ async def ignore_listener() -> None:
         if not last_messages[chat_id][1]:
             return
         time_diff = time_point - last_messages[chat_id][0]
-        if time_diff.seconds >= 3600 and time_diff.seconds < 7200:
+        if time_diff.seconds >= 60 and time_diff.seconds < 120 and len(last_messages[chat_id]) == 2:
             try:
+                last_messages[chat_id] = (dt.now(), True, True)
                 await bot.send_message(chat_id=chat_id, text="Я понимаю, что ты занят, расскажи, пожалуйста, как у тебя дела?")
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
-        elif time_diff.seconds >= 7200 and time_diff.seconds < 10800:
+        # elif time_diff.seconds >= 7200 and time_diff.seconds < 10800 and len(last_messages[chat_id]) == 3:
+        elif len(last_messages[chat_id]) == 3:
             try:
+                last_messages[chat_id] = (dt.now(), True, True, True)
                 await bot.send_message(chat_id=chat_id, text="Я понимаю, что ты очень сильно занят, но напиши, пожалуйста, как у тебя с делом?")
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
-        elif time_diff.seconds >= 10800:
+        # elif time_diff.seconds >= 10800:
+        elif len(last_messages[chat_id]) == 4:
             if not (dt.now().weekday() == 5 or dt.now().weekday() == 6 or dt.now() in holidays_ru["state_holidays"]):
                 try:
                     await bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"Сотрудник {Rielter.get_or_none(Rielter.rielter_id == chat_id).fio} (#{chat_id}) не отвечает на сообщения уже 3 часа!")

@@ -59,8 +59,9 @@ async def enter_posting_adverts_count(msg: types.Message, state: FSMContext):
 # вид сделки
 @dp.message_handler(lambda msg: msg.text in ["Квартира", "Земля", "Дом", "Офис", "Магазин", "Другое", "Назад"], state=WorkStates.deal_enter_deal_type)
 async def enter_deal_type(msg: types.Message, state: FSMContext):
-    last_messages[msg.from_user.id] = (dt.now(), True)
+    last_messages[msg.from_user.id] = (dt.now(), False)
     if msg.text == "Назад":
+        last_messages[msg.from_user.id] = (dt.now(), True)
         await msg.answer(text="Отмена!", reply_markup=types.ReplyKeyboardRemove())
         await msg.answer(text=generate_main_menu_text(), reply_markup=get_inline_menu_markup())
         await WorkStates.ready.set()
@@ -171,9 +172,11 @@ async def is_contract_signed(callback: types.Message, state: FSMContext):
         await WorkStates.ready.set()
 
     elif callback.data == "unsigned":
+        last_messages[callback.from_user.id] = (dt.now(), False)
         await bot.send_message(chat_id=callback.from_user.id, text="Значит в следующий раз точно подпишите!" , reply_markup=types.ReplyKeyboardRemove())
         await bot.send_message(chat_id=callback.from_user.id, text="А пока советую посмотреть материалы по этой теме, чтобы в следующий раз быть готовым на 100%", reply_markup=get_types_contracts_markup())
         schedule_job(callback.from_user.id, bot, "Изучил материал? Все понял, или нужно что-то еще?", WorkStates.is_all_materials_ok, get_is_all_materials_ok_markup(), dt.now() + SHIFT_SHORT_TIMEDELTA, "Изучение теоретических материалов")
+        await WorkStates.ready.set()
 
     elif callback.data == "later":
         last_messages[callback.from_user.id] = (dt.now(), True)

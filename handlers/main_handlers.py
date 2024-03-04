@@ -153,7 +153,7 @@ async def start_new_activity(callback: types.CallbackQuery, state: FSMContext):
     if callback.data not in ("analytics", "meeting", "call", "show", "search", "flyer", "deal", "deposit", "no_work", "d_base"):
         return
     await callback.answer("✓")
-    last_messages[callback.from_user.id] = (dt.now(), True)
+    last_messages[callback.from_user.id] = (dt.now(), False)
     if callback.data == "analytics":
         await bot.send_message(chat_id=callback.from_user.id, text="Хорошо, я вернусь через час, предложить новую работу!")
         tmp = Report.get_or_none(Report.rielter_id == callback.from_user.id)
@@ -221,6 +221,7 @@ async def enter_no_work_type(msg: types.Message, state: FSMContext):
         await msg.answer(generate_main_menu_text(), reply_markup=get_inline_menu_markup())
         await WorkStates.ready.set()
     elif msg.text == "Устал":
+        last_messages[msg.from_user.id] = (dt.now(), False)
         await msg.answer("Конечно ты можешь отдохнуть, я напомню тебе про работу через час.", reply_markup=types.ReplyKeyboardRemove())
         schedule_job(msg.from_user.id, bot, generate_main_menu_text(), WorkStates.ready, get_inline_menu_markup(), dt.now() + SHIFT_TIMEDELTA, "Задаток")
         await WorkStates.ready.set()
