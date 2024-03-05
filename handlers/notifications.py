@@ -46,7 +46,7 @@ async def ignore_listener() -> None:
         if not last_messages[chat_id][1]:
             return
         time_diff = time_point - last_messages[chat_id][0]
-        if time_diff.seconds >= 60 and time_diff.seconds < 120 and len(last_messages[chat_id]) == 2:
+        if time_diff.seconds >= 3600 and time_diff.seconds < 4000 and len(last_messages[chat_id]) == 2:
             try:
                 last_messages[chat_id] = (dt.now(), True, True)
                 await bot.send_message(chat_id=chat_id, text="Я понимаю, что ты занят, расскажи, пожалуйста, как у тебя дела?")
