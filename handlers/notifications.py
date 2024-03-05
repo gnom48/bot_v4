@@ -46,21 +46,23 @@ async def ignore_listener() -> None:
         if not last_messages[chat_id][1]:
             return
         time_diff = time_point - last_messages[chat_id][0]
-        if time_diff.seconds >= 3600 and time_diff.seconds < 4000 and len(last_messages[chat_id]) == 2:
+        if time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 2:
             try:
                 last_messages[chat_id] = (dt.now(), True, True)
                 await bot.send_message(chat_id=chat_id, text="Я понимаю, что ты занят, расскажи, пожалуйста, как у тебя дела?")
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
+            return
         # elif time_diff.seconds >= 7200 and time_diff.seconds < 10800 and len(last_messages[chat_id]) == 3:
-        elif len(last_messages[chat_id]) == 3:
+        elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 3:
             try:
                 last_messages[chat_id] = (dt.now(), True, True, True)
                 await bot.send_message(chat_id=chat_id, text="Я понимаю, что ты очень сильно занят, но напиши, пожалуйста, как у тебя с делом?")
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
+            return
         # elif time_diff.seconds >= 10800:
-        elif len(last_messages[chat_id]) == 4:
+        elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 4:
             if not (dt.now().weekday() == 5 or dt.now().weekday() == 6 or dt.now() in holidays_ru["state_holidays"]):
                 try:
                     await bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"Сотрудник {Rielter.get_or_none(Rielter.rielter_id == chat_id).fio} (#{chat_id}) не отвечает на сообщения уже 3 часа!")
