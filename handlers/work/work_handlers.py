@@ -112,8 +112,16 @@ async def enter_analytics_result(msg: types.Message, state: FSMContext):
 async def enter_deal_result(msg: types.Message, state: FSMContext):
     last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "Хорошо":
-        await msg.answer(text="В итоге вы подписали договор?", reply_markup=get_is_signed_markup())
-        await WorkStates.is_signed.set()
+        #await msg.answer(text="В итоге вы подписали договор?", reply_markup=get_is_signed_markup())
+        #await WorkStates.is_signed.set()
+        tmp = Report.get_or_none(Report.rielter_id == msg.from_user.id)
+        count_shows = 1
+        if tmp:
+            count_shows += tmp.show_objects
+            Report.update(show_objects=count_shows).where(Report.rielter_id == msg.from_user.id).execute()
+        await msg.answer(generate_motivation_compliment(), reply_markup=types.ReplyKeyboardRemove())
+        await msg.answer(generate_main_menu_text(), reply_markup=get_inline_menu_markup())
+        await WorkStates.ready.set()
     elif msg.text == "Плохо":
         await bot.send_message(chat_id=msg.from_user.id, text=generate_bad_meeting_or_deal(), reply_markup=types.ReplyKeyboardRemove())
         await bot.send_message(chat_id=msg.from_user.id, text="Выбери проблему:", reply_markup=get_bed_result(from_state=WorkStates.show_result))
