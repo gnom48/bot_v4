@@ -23,7 +23,8 @@ async def onStartBot(_):
     month_week_scheduler.add_job(func=get_week_statistics, trigger='cron', day_of_week='mon', hour=10-3, minute=50, kwargs={"bot": bot})
 
     # запуск слушателя игнора
-    ignore_scheduler.add_job(func=ignore_listener, trigger=IntervalTrigger(minutes=1))
+    ignore_scheduler.add_job(func=ignore_listener, trigger=IntervalTrigger(seconds=5))
+    # ignore_scheduler.add_job(func=ignore_listener, trigger=IntervalTrigger(minutes=1))
 
     main_scheduler.start()
     support_scheduler.start()
@@ -105,7 +106,7 @@ async def inline_mode_query_handler(inline_query: types.InlineQuery, state: FSMC
 
 # команда меню
 @dp.message_handler(commands=['menu'], state="*")
-async def start_cmd(msg: types.Message):
+async def menu_cmd(msg: types.Message):
     last_messages[msg.from_user.id] = (dt.now(), True)
     await msg.answer(generate_main_menu_text(), reply_markup=get_inline_menu_markup())
     await WorkStates.ready.set()
@@ -113,15 +114,16 @@ async def start_cmd(msg: types.Message):
 
 # служебная команда для отладки
 @dp.message_handler(commands=['debug'], state="*")
-async def start_cmd(msg: types.Message, state: FSMContext):
+async def debug_cmd(msg: types.Message, state: FSMContext):
     last_messages[msg.from_user.id] = (dt.now(), False)
     await msg.answer(f"state = {state.__str__()}")
-    await msg.answer(f"scheduler_list = {json.dumps(scheduler_list.__dict__)}")
+    await msg.answer(f"scheduler_list = {scheduler_list}")
+    await msg.answer(f"last_messages = {last_messages}")
 
 
 # команда задача
 @dp.message_handler(commands=['task'], state=WorkStates.ready)
-async def start_cmd(msg: types.Message, state: FSMContext):
+async def task_cmd(msg: types.Message, state: FSMContext):
     last_messages[msg.from_user.id] = (dt.now(), True)
     await msg.answer("Отлично, давай запишем новое напоминание!", reply_markup=types.ReplyKeyboardRemove())
     await msg.answer("Напиши краткое название задачи:")

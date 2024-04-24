@@ -41,11 +41,13 @@ async def send_scheduled_message(chat_id: int, job_id: str, bot: Bot, text: str,
 async def ignore_listener() -> None:
     for chat_id in last_messages:
         time_point = dt.now()
+        print("\n\n", last_messages, "\n\n")
         if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
             return
         if not last_messages[chat_id][1]:
             continue
         time_diff = time_point - last_messages[chat_id][0]
+        # if time_diff.seconds >= 15 and time_diff.seconds < 30 and len(last_messages[chat_id]) == 2:
         if time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 2:
             try:
                 last_messages[chat_id] = (dt.now(), True, True)
@@ -53,7 +55,7 @@ async def ignore_listener() -> None:
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
             continue
-        # elif time_diff.seconds >= 7200 and time_diff.seconds < 10800 and len(last_messages[chat_id]) == 3:
+        # elif time_diff.seconds >= 30 and time_diff.seconds < 45 and len(last_messages[chat_id]) == 3:
         elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 3:
             try:
                 last_messages[chat_id] = (dt.now(), True, True, True)
@@ -61,7 +63,7 @@ async def ignore_listener() -> None:
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
             continue
-        # elif time_diff.seconds >= 10800:
+        # elif time_diff.seconds >= 45 and time_diff.seconds < 60 and len(last_messages[chat_id]) == 4:
         elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 4:
             if not (dt.now().weekday() == 5 or dt.now().weekday() == 6 or dt.now() in holidays_ru["state_holidays"]):
                 try:
