@@ -5,5 +5,7 @@
 /models/__pycache__
 /authorization/__pycache__
 /knowledge_base/__pycache__
+/handlers/knowledge_base/__pycache__
+/handlers/work/__pycache__
 /tasks/__pycache__
 /work/__pycache__
