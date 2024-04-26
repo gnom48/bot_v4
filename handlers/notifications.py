@@ -42,11 +42,11 @@ async def send_scheduled_message(chat_id: int, job_id: str, bot: Bot, text: str,
 # слушатель игнора - проверяет для пользователя последнее сообщение и ругается
 async def ignore_listener() -> None:
     ids = [model.rielter_id for model in Rielter.select().order_by(Rielter.rielter_id)]
+    time_point = dt.now()
+    if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
+        return
     for chat_id in ids:
         last_record: dict = loads(Rielter.get_by_id(chat_id).last_action)
-        time_point = dt.now()
-        if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
-            return
         if not last_record[1]:
             continue
         time_diff = time_point - dt.fromtimestamp(last_record[0])
