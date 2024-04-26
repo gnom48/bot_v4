@@ -28,7 +28,6 @@ async def send_welcome(callback: types.CallbackQuery, state: FSMContext):
 @dp.message_handler(state=WorkStates.reg_enter_login)
 async def enter_fio(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     async with state.proxy() as data:
         data["fio"] = msg.text
     await msg.answer("Теперь введи дату рождения (в формате ДД-ММ-ГГГГ):")

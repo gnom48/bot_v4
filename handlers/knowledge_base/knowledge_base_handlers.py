@@ -18,12 +18,10 @@ import asyncio
 @dp.callback_query_handler(state=WorkStates.knowledge_base_root)
 async def choose_what_bad(callback: types.CallbackQuery, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), True)
     await callback.answer("✓")
 
     if callback.data == "analytics" or callback.data == "shows" or callback.data == "commercial":
         Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-        # last_messages[callback.from_user.id] = (dt.now(), False)
         kb = types.InlineKeyboardMarkup(row_width=1)
         vb = types.InlineKeyboardButton(text='Смотреть материал', url=why_bad_str_list[callback.data])
         kb.add(vb)
@@ -33,7 +31,6 @@ async def choose_what_bad(callback: types.CallbackQuery, state: FSMContext):
 
     elif callback.data == "calls":
         Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-        # last_messages[callback.from_user.id] = (dt.now(), False)
         kb = types.InlineKeyboardMarkup(row_width=1)
         vb1 = types.InlineKeyboardButton(text='Смотреть видео', url=why_bad_str_list[callback.data+"_video"])
         vb2 = types.InlineKeyboardButton(text='Читать материал', url=why_bad_str_list[callback.data])
@@ -63,7 +60,6 @@ async def choose_what_bad(callback: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(state=WorkStates.knowledge_base_bad_clients)
 async def choose_what_bad_clients(callback: types.CallbackQuery, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), False)
     await callback.answer("✓")
 
     if callback.data in ["context", "general", "bad_calls", "anti_bad", "bad_meets"]:
@@ -79,7 +75,6 @@ async def choose_what_bad_clients(callback: types.CallbackQuery, state: FSMConte
 @dp.callback_query_handler(state=WorkStates.knowledge_base_base_deals)
 async def choose_what_deals(callback: types.CallbackQuery, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), False)
     await callback.answer("✓")
 
     if callback.data in ["exclusive", "serching", "auction"]:
@@ -95,12 +90,10 @@ async def choose_what_deals(callback: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(state=WorkStates.knowledge_base_bad_meets)
 async def choose_what_meets(callback: types.CallbackQuery, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), True)
     await callback.answer("✓")
 
     if callback.data in ["small-talk", "spin", "3yes"]:
         Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-        # last_messages[callback.from_user.id] = (dt.now(), False)
         kb = types.InlineKeyboardMarkup(row_width=1)
         vb = types.InlineKeyboardButton(text='Смотреть материал', url=why_bad_str_list[callback.data])
         kb.add(vb)
@@ -117,7 +110,6 @@ async def choose_what_meets(callback: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(state=WorkStates.knowledge_base_all_able)
 async def choose_what_all_able_to_sale(callback: types.CallbackQuery, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), False)
     await callback.answer("✓")
 
     if callback.data in ["price", "homestaging"]:
@@ -133,7 +125,6 @@ async def choose_what_all_able_to_sale(callback: types.CallbackQuery, state: FSM
 @dp.callback_query_handler(state=WorkStates.deal_why_bad_result)
 async def enter_why_deal_bad(callback: types.CallbackQuery, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), True)
     await callback.answer("✓")
     tmp = Report.get_or_none(Report.rielter_id == callback.from_user.id)
     if callback.data in ("Объект не понравился", "Задаток сорвался", "Продавец привередливый", "Покупатель привередливый", "Встреча не состоялась", "get_materials_analytics"):
@@ -189,7 +180,6 @@ async def enter_why_deal_bad(callback: types.CallbackQuery, state: FSMContext):
                                 reply_markup=get_video_link("https://youtu.be/cATV_k5cqBc?si=n_cSPsPr1ZC6_vNs"))
             await WorkStates.ready.set()
         Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-        # last_messages[callback.from_user.id] = (dt.now(), False)
         schedule_job(callback.from_user.id, bot, "Изучил материал? Все понял, или нужно что-то еще?", WorkStates.is_all_materials_ok, get_is_all_materials_ok_markup(), dt.now() + SHIFT_SHORT_TIMEDELTA, "Изучение теоретических материалов")
 
     elif callback.data == "Сделку перенесли" or callback.data == "Задаток перенесен":
@@ -212,7 +202,6 @@ async def enter_why_deal_bad(callback: types.CallbackQuery, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in ["Спасибо, все понятно", "Нужна еще информация"], state=WorkStates.is_all_materials_ok)
 async def is_all_materials_ok_handler(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "Спасибо, все понятно":
         await msg.answer("Рад, что смог помочь тебе повысить уровень знаний в профессиональной сфере!", reply_markup=types.ReplyKeyboardRemove())
         await msg.answer(generate_main_menu_text(), reply_markup=get_inline_menu_markup())

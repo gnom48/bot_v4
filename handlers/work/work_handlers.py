@@ -18,7 +18,6 @@ import asyncio
 @dp.message_handler(lambda msg: msg.text, state=WorkStates.enter_flyer_count)
 async def enter_posting_adverts_count(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     count: int = 0
     try:
         count = int(msg.text)
@@ -40,7 +39,6 @@ async def enter_posting_adverts_count(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text, state=WorkStates.enter_calls_count)
 async def enter_posting_adverts_count(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     count: int = 0
     try:
         count = int(msg.text)
@@ -62,7 +60,6 @@ async def enter_posting_adverts_count(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in ["Квартира", "Земля", "Дом", "Офис", "Магазин", "Другое", "Назад"], state=WorkStates.deal_enter_deal_type)
 async def enter_deal_type(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), False)
     if msg.text == "Назад":
         last_messages[msg.from_user.id] = (dt.now(), True)
         await msg.answer(text="Отмена!", reply_markup=types.ReplyKeyboardRemove())
@@ -79,7 +76,6 @@ async def enter_deal_type(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in ["Хорошо", "Плохо"], state=WorkStates.deal_retult)
 async def enter_deal_result(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "Хорошо":
         tmp = Report.get_or_none(Report.rielter_id == msg.from_user.id)
         count = 0
@@ -100,7 +96,6 @@ async def enter_deal_result(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in ["Хорошо", "Плохо"], state=WorkStates.analytics_result)
 async def enter_analytics_result(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "Хорошо":
         await msg.answer(f"Умение анализировать рынок и находить хорошие объекты - важные навыки для риелтора! Продолжай в том же духе!", reply_markup=types.ReplyKeyboardRemove())
         await msg.answer(f"{generate_main_menu_text()}", reply_markup=get_inline_menu_markup())
@@ -138,7 +133,6 @@ async def enter_deal_result(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in ["Хорошо", "Плохо"], state=WorkStates.deposit_result)
 async def enter_deal_result(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "Хорошо":
         tmp = Report.get_or_none(Report.rielter_id == msg.from_user.id)
         count_deposits = 0
@@ -160,7 +154,6 @@ async def enter_deal_result(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in ["Хорошо", "Плохо"], state=WorkStates.meet_new_object_result)
 async def enter_deal_result(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "Хорошо":
         await msg.answer(text="В итоге вы подписали договор?", reply_markup=get_is_signed_markup())
         await WorkStates.is_signed.set()
@@ -174,7 +167,6 @@ async def enter_deal_result(msg: types.Message, state: FSMContext):
 @dp.callback_query_handler(state=WorkStates.is_signed)
 async def is_contract_signed(callback: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), True)
     await callback.answer("✓")
     if callback.data == "signed":
         tmp = Report.get_or_none(Report.rielter_id == callback.from_user.id)
@@ -190,7 +182,6 @@ async def is_contract_signed(callback: types.Message, state: FSMContext):
 
     elif callback.data == "unsigned":
         Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-        # last_messages[callback.from_user.id] = (dt.now(), False)
         await bot.send_message(chat_id=callback.from_user.id, text="Значит в следующий раз точно подпишите!" , reply_markup=types.ReplyKeyboardRemove())
         await bot.send_message(chat_id=callback.from_user.id, text="А пока советую посмотреть материалы по этой теме, чтобы в следующий раз быть готовым на 100%", reply_markup=get_types_contracts_markup())
         schedule_job(callback.from_user.id, bot, "Изучил материал? Все понял, или нужно что-то еще?", WorkStates.is_all_materials_ok, get_is_all_materials_ok_markup(), dt.now() + SHIFT_SHORT_TIMEDELTA, "Изучение теоретических материалов")
@@ -198,7 +189,6 @@ async def is_contract_signed(callback: types.Message, state: FSMContext):
 
     elif callback.data == "later":
         Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == callback.from_user.id).execute()
-        # last_messages[callback.from_user.id] = (dt.now(), True)
         await bot.send_message(chat_id=callback.from_user.id, text = "Ладно, клиенту необходимо хорошенько подумать, давай запишем тебе напоминание!", reply_markup=types.ReplyKeyboardRemove())
         await bot.send_message(chat_id=callback.from_user.id, text = "Напиши краткое название задачи:")
         await WorkStates.task_name.set()

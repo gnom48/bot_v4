@@ -41,7 +41,6 @@ async def onStartBot(_):
 @dp.message_handler(commands=['help'], state=WorkStates.ready)
 async def del_task_cmd(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     await msg.answer(get_help_command_text())
 
 
@@ -49,7 +48,6 @@ async def del_task_cmd(msg: types.Message, state: FSMContext):
 @dp.message_handler(commands=['del_task'], state=WorkStates.ready)
 async def del_task_cmd(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     res_str = ""
     c = 0
     if msg.from_user.id not in scheduler_list.keys():
@@ -77,7 +75,6 @@ async def del_task_cmd(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text.isdigit(), state=WorkStates.enter_task_id)
 async def enter_del_task_id(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "0":
         await msg.answer(generate_main_menu_text(), reply_markup=get_inline_menu_markup())
         await WorkStates.ready.set()
@@ -112,7 +109,6 @@ async def inline_mode_query_handler(inline_query: types.InlineQuery, state: FSMC
 @dp.message_handler(commands=['menu'], state="*")
 async def menu_cmd(msg: types.Message):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     await msg.answer(generate_main_menu_text(), reply_markup=get_inline_menu_markup())
     await WorkStates.ready.set()
     
@@ -121,7 +117,6 @@ async def menu_cmd(msg: types.Message):
 @dp.message_handler(commands=['debug'], state="*")
 async def debug_cmd(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), False)
     await msg.answer(f"state = {state.__str__()}")
     await msg.answer(f"scheduler_list = {scheduler_list}")
     await msg.answer(f"last_messages = {last_messages}")
@@ -131,7 +126,6 @@ async def debug_cmd(msg: types.Message, state: FSMContext):
 @dp.message_handler(commands=['task'], state=WorkStates.ready)
 async def task_cmd(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     await msg.answer("Отлично, давай запишем новое напоминание!", reply_markup=types.ReplyKeyboardRemove())
     await msg.answer("Напиши краткое название задачи:")
     await WorkStates.task_name.set()
@@ -141,7 +135,6 @@ async def task_cmd(msg: types.Message, state: FSMContext):
 @dp.message_handler(commands=['start'], state="*")
 async def start_cmd(msg: types.Message):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     # scheduler_list[msg.from_user.id] = {} # сомнительно но ок
     oldRielter: any
     try:
@@ -164,7 +157,6 @@ async def start_new_activity(callback: types.CallbackQuery, state: FSMContext):
         return
     await callback.answer("✓")
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == callback.from_user.id).execute()
-    # last_messages[callback.from_user.id] = (dt.now(), False)
     if callback.data == "analytics":
         await bot.send_message(chat_id=callback.from_user.id, text="Хорошо, я вернусь через час, предложить новую работу!")
         tmp = Report.get_or_none(Report.rielter_id == callback.from_user.id)
@@ -228,13 +220,11 @@ async def start_new_activity(callback: types.CallbackQuery, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in ["Устал", "Отпуск", "Больничный", "Назад"], state=WorkStates.no_work_type)
 async def enter_no_work_type(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if msg.text == "Назад":
         await msg.answer(generate_main_menu_text(), reply_markup=get_inline_menu_markup())
         await WorkStates.ready.set()
     elif msg.text == "Устал":
         Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == msg.from_user.id).execute()
-        # last_messages[msg.from_user.id] = (dt.now(), False)
         await msg.answer("Конечно ты можешь отдохнуть, я напомню тебе про работу через час.", reply_markup=types.ReplyKeyboardRemove())
         schedule_job(msg.from_user.id, bot, generate_main_menu_text(), WorkStates.ready, get_inline_menu_markup(), dt.now() + SHIFT_TIMEDELTA, "Задаток")
         await WorkStates.ready.set()
@@ -254,7 +244,6 @@ async def enter_no_work_type(msg: types.Message, state: FSMContext):
 @dp.message_handler(state=WorkStates.enter_days_ill_or_rest)
 async def enter_no_work_type(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), False)
     try:
         days_count = int(msg.text)
         if days_count < 0:
@@ -272,5 +261,4 @@ async def enter_no_work_type(msg: types.Message, state: FSMContext):
 @dp.message_handler(state=WorkStates.ready)
 async def talks(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     await msg.answer("Тебе стоит выбрать какое-нибудь действие, если ты потерялся - обратись к справке /help или своему руководителю!")

@@ -17,7 +17,6 @@ import asyncio
 @dp.message_handler(state=WorkStates.task_name)
 async def enter_task_name(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     async with state.proxy() as data:
         data["task_name"] = msg.text
     await msg.answer("Теперь напиши дату (в формате ДД-ММ-ГГГГ), когда тебе нужно об этом напомнить:")
@@ -28,7 +27,6 @@ async def enter_task_name(msg: types.Message, state: FSMContext):
 @dp.message_handler(state=WorkStates.task_date)
 async def enter_task_date(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if re.match(r'\d{2}\-\d{2}\-\d{4}', msg.text):
         date_obj = dt.strptime(msg.text, '%d-%m-%Y')
         if date_obj.date() < dt.now().date():
@@ -50,7 +48,6 @@ async def enter_task_date(msg: types.Message, state: FSMContext):
 @dp.message_handler(state=WorkStates.task_time)
 async def enter_task_date(msg: types.Message, state: FSMContext):
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == msg.from_user.id).execute()
-    # last_messages[msg.from_user.id] = (dt.now(), True)
     if re.match(r'\d{2}\:\d{2}', msg.text):
         time_obj: dt
         try:
