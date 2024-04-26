@@ -43,9 +43,12 @@ async def send_scheduled_message(chat_id: int, job_id: str, bot: Bot, text: str,
 async def ignore_listener() -> None:
     ids = [model.rielter_id for model in Rielter.select().order_by(Rielter.rielter_id)]
     time_point = dt.now()
-    if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
-        return
+    # if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
+    #     return
     for chat_id in ids:
+        if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
+            Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == chat_id).execute()
+            return
         last_record: dict = loads(Rielter.get_by_id(chat_id).last_action)
         if not last_record[1]:
             continue
@@ -199,6 +202,7 @@ async def good_evening_notification(bot: Bot):
         praise_sentence = f"Что я могу сказать по поводу эффективности твоей работы:\n\nЗвонки: {calls_praise}\n\nРасклейка: {stickers_praise}"
 
         worker = Rielter.get_by_id(pk=day_results.rielter_id)
+        Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == day_results.rielter_id).execute()
 
         if not flag:
             try:
