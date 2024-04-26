@@ -1,3 +1,4 @@
+from calendar import c
 from aiogram import types, Bot
 from datetime import time, date, timedelta
 from datetime import datetime as dt
@@ -9,11 +10,13 @@ from .creation import *
 import holidays
 import asyncio, logging
 from aiogram.dispatcher import Dispatcher
+from json import dumps, loads
 
 
 # для правильной планировки отправки сообщения
 def schedule_job(chat_id: int, bot: Bot, text: str, state: State, keyboard, send_at: dt, title: str) -> None:
-    last_messages[chat_id] = (dt.now(), True)
+    Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == chat_id).execute()
+    # last_messages[chat_id] = (dt.now(), True)
     job_id = f"{chat_id}_{send_at}_{title}"
     kw = {"chat_id" : chat_id, "job_id" : job_id, "bot" : bot, "text" : text, "state" : state, "keyboard" : keyboard, "title" : title}
     support_scheduler.add_job(func=send_scheduled_message, trigger="date", run_date=send_at, kwargs=kw, id=job_id)
@@ -39,36 +42,43 @@ async def send_scheduled_message(chat_id: int, job_id: str, bot: Bot, text: str,
 
 # слушатель игнора - проверяет для пользователя последнее сообщение и ругается
 async def ignore_listener() -> None:
-    for chat_id in last_messages:
+    ids = [model.rielter_id for model in Rielter.select().order_by(Rielter.rielter_id)]
+    for chat_id in ids:
+        last_record: dict = loads(Rielter.get_by_id(chat_id).last_action)
         time_point = dt.now()
         if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
-            return
-        if not last_messages[chat_id][1]:
+            # return
+            pass
+        if not last_record[1]:
             continue
-        time_diff = time_point - last_messages[chat_id][0]
-        # if time_diff.seconds >= 15 and time_diff.seconds < 30 and len(last_messages[chat_id]) == 2:
-        if time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 2:
+        # time_diff = time_point - last_messages[chat_id][0]
+        time_diff = time_point - dt.fromtimestamp(last_record[0])
+        # if time_diff.seconds >= 30 and time_diff.seconds < 40 and len(last_record) == 2:
+        if time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_record) == 2:
             try:
-                last_messages[chat_id] = (dt.now(), True, True)
+                # last_messages[chat_id] = (dt.now(), True, True)
+                Rielter.update(last_action=dumps((int(dt.now().timestamp()), True, True))).where(Rielter.rielter_id == chat_id).execute()
                 await bot.send_message(chat_id=chat_id, text="Я понимаю, что ты занят, расскажи, пожалуйста, как у тебя дела?")
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
             continue
-        # elif time_diff.seconds >= 30 and time_diff.seconds < 45 and len(last_messages[chat_id]) == 3:
-        elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 3:
+        # elif time_diff.seconds >= 30 and time_diff.seconds < 40 and len(last_record) == 3:
+        elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_record) == 3:
             try:
-                last_messages[chat_id] = (dt.now(), True, True, True)
+                # last_messages[chat_id] = (dt.now(), True, True, True)
+                Rielter.update(last_action=dumps((int(dt.now().timestamp()), True, True, True))).where(Rielter.rielter_id == chat_id).execute()
                 await bot.send_message(chat_id=chat_id, text="Я понимаю, что ты очень сильно занят, но напиши, пожалуйста, как у тебя с делом?")
             except:
                 logging.error(f"unable to chat with [ignore] {chat_id}")
             continue
-        # elif time_diff.seconds >= 45 and time_diff.seconds < 60 and len(last_messages[chat_id]) == 4:
-        elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_messages[chat_id]) == 4:
+        # elif time_diff.seconds >= 30 and time_diff.seconds < 40 and len(last_record) == 4:
+        elif time_diff.seconds >= 3600 and time_diff.seconds < 3750 and len(last_record) == 4:
             if not (dt.now().weekday() == 5 or dt.now().weekday() == 6 or dt.now() in holidays_ru["state_holidays"]):
                 try:
                     await bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"Сотрудник {Rielter.get_or_none(Rielter.rielter_id == chat_id).fio} (#{chat_id}) не отвечает на сообщения уже 3 часа!")
                     await bot.send_message(chat_id=chat_id, text=f"О нет, вы игнорируете меня уже 3 часа к ряду! Я был вынужден сообщить вашему руководителю.")
-                    last_messages[chat_id] = (dt.now(), False)
+                    # last_messages[chat_id] = (dt.now(), False)
+                    Rielter.update(last_action=dumps((int(dt.now().timestamp()), False))).where(Rielter.rielter_id == chat_id).execute()
                 except:
                     await bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"Сотрудник {Rielter.get_or_none(Rielter.rielter_id == chat_id).fio} (#{chat_id}) недоступен для отправки сообщений!")
 
@@ -76,7 +86,7 @@ async def ignore_listener() -> None:
 # ежедневные утренние напоминания
 async def morning_notifications(bot: Bot, dp: Dispatcher):
     # сброс счётчиков
-    last_messages.clear()
+    # last_messages.clear()
 
     # др
     for rielter in Rielter.select():
@@ -134,8 +144,9 @@ async def morning_notifications(bot: Bot, dp: Dispatcher):
                 if dt.now() in holidays_ru['state_holidays']:
                     await bot.send_message(chat_id=tmp.rielter_id, text=f"Поздравляю с праздником! Сегодня - {holidays_ru['state_holidays'][dt.now()]}")
                 return
-
-            last_messages[tmp.rielter_id] = (dt.now(), True)
+                
+            Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == tmp.rielter_id).execute()
+            # last_messages[tmp.rielter_id] = (dt.now(), True)
             await bot.send_message(chat_id=tmp.rielter_id, text=get_day_plan(Rielter.get_by_id(pk=tmp.rielter_id).rielter_type_id))
 
             await bot.send_message(chat_id=tmp.rielter_id, text=generate_main_menu_text(), reply_markup=get_inline_menu_markup())
