@@ -16,7 +16,6 @@ from json import dumps, loads
 # для правильной планировки отправки сообщения
 def schedule_job(chat_id: int, bot: Bot, text: str, state: State, keyboard, send_at: dt, title: str) -> None:
     Rielter.update(last_action=dumps((int(dt.now().timestamp()), True))).where(Rielter.rielter_id == chat_id).execute()
-    # last_messages[chat_id] = (dt.now(), True)
     job_id = f"{chat_id}_{send_at}_{title}"
     kw = {"chat_id" : chat_id, "job_id" : job_id, "bot" : bot, "text" : text, "state" : state, "keyboard" : keyboard, "title" : title}
     support_scheduler.add_job(func=send_scheduled_message, trigger="date", run_date=send_at, kwargs=kw, id=job_id)
