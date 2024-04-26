@@ -23,8 +23,8 @@ async def onStartBot(_):
     month_week_scheduler.add_job(func=get_week_statistics, trigger='cron', day_of_week='mon', hour=10-3, minute=50, kwargs={"bot": bot})
 
     # запуск слушателя игнора
-    ignore_scheduler.add_job(func=ignore_listener, trigger=IntervalTrigger(seconds=5))
-    # ignore_scheduler.add_job(func=ignore_listener, trigger=IntervalTrigger(minutes=1))
+    # ignore_scheduler.add_job(func=ignore_listener, trigger=IntervalTrigger(seconds=5))
+    ignore_scheduler.add_job(func=ignore_listener, trigger=IntervalTrigger(minutes=1))
 
     main_scheduler.start()
     support_scheduler.start()

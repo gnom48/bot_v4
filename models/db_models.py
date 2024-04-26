@@ -31,6 +31,8 @@ class Rielter(BaseModel):
     gender = TextField(default="")
     rielter_type = ForeignKeyField(Rielter_type)
 
+    last_action = DateTimeField(default=None)
+
 
 class Report(BaseModel):
 

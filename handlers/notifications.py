@@ -41,7 +41,6 @@ async def send_scheduled_message(chat_id: int, job_id: str, bot: Bot, text: str,
 async def ignore_listener() -> None:
     for chat_id in last_messages:
         time_point = dt.now()
-        print("\n\n", last_messages, "\n\n")
         if time_point.time() > time(18-3, 0) or time_point.time() < time(10-3, 0):
             return
         if not last_messages[chat_id][1]:
