@@ -1,10 +1,10 @@
 from datetime import timedelta
 
-TOKEN = "6974621259:AAEcWJAAeDCfe81TPr_fkvpnGrefADX7ERM" # PRO недвижимость
-# TOKEN = "5863046306:AAG2-WD7AN5xk0nxMdrSui-IJasvRGYhhw4" # glitch
+# здесь указать токен бота
+TOKEN = ""
 
-ADMIN_CHAT_ID = -1002063549372
-# ADMIN_CHAT_ID = 1662173315
+# здесь указать id чата в который бот будет присылать статистику и прочее (можно указать id личного чата)
+ADMIN_CHAT_ID = -1
 
 SHIFT_TIMEDELTA = timedelta(hours=1)
 SHIFT_SHORT_TIMEDELTA = timedelta(seconds=10)
