@@ -9,3 +9,4 @@
 /handlers/work/__pycache__
 /tasks/__pycache__
 /work/__pycache__
+*__pycache__
